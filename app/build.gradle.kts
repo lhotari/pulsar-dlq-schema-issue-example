@@ -47,3 +47,27 @@ tasks.named<Test>("test") {
 tasks.named("compileKotlin") {
     dependsOn("ktfmtFormat")
 }
+
+configurations {
+    all {
+        resolutionStrategy {
+            eachDependency {
+                if ((requested.group == "org.apache.bookkeeper" || requested.group == "io.streamnative") &&
+                    requested.name in listOf("circe-checksum", "cpu-affinity", "native-io")
+                ) {
+                    // Workaround for invalid metadata for Bookkeeper dependencies which contain
+                    // <packaging>nar</packaging> in pom.xml
+                    artifactSelection {
+                        selectArtifact("jar", null, null)
+                    }
+                } else if (requested.name == "pulsar-client" || requested.name == "pulsar-client-all") {
+                    // replace pulsar-client and pulsar-client-all with pulsar-client-original
+                    useTarget("${requested.group}:pulsar-client-original:${requested.version}")
+                } else if (requested.name == "pulsar-client-admin") {
+                    // replace pulsar-client-admin with pulsar-client-admin-original
+                    useTarget("${requested.group}:pulsar-client-admin-original:${requested.version}")
+                }
+            }
+        }
+    }
+}
