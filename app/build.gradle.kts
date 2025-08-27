@@ -42,6 +42,12 @@ application {
     applicationDefaultJvmArgs = listOf("-DPULSAR_DOCKER_IMAGE=$PULSAR_DOCKER_IMAGE")
 }
 
+tasks.named<JavaExec>("run") {
+    if (project.hasProperty("debug")) {
+        jvmArgs = listOf("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
+    }
+}
+
 tasks.named<Test>("test") {
     useJUnitPlatform()
 }
