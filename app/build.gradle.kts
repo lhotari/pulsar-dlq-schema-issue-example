@@ -1,7 +1,7 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.9.0"
-    id("com.github.davidmc24.gradle.plugin.avro") version "1.8.0"
-    id("com.ncorti.ktfmt.gradle") version "0.13.0"
+    id("org.jetbrains.kotlin.jvm") version "2.1.0"
+    id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
+    id("com.ncorti.ktfmt.gradle") version "0.21.0"
 
     application
 }
@@ -15,14 +15,13 @@ repositories {
     mavenCentral()
 }
 
-val PULSAR_VERSION = "3.3.7"
-//val PULSAR_VERSION = "3.1.0-SNAPSHOT"
+val PULSAR_VERSION = "4.0.1"
 
 dependencies {
-    implementation("ch.qos.logback:logback-core:1.4.11")
-    implementation("ch.qos.logback:logback-classic:1.4.11")
-    implementation("org.apache.avro:avro:1.11.2")
-    implementation("org.testcontainers:pulsar:1.19.0")
+    implementation("ch.qos.logback:logback-core:1.5.16")
+    implementation("ch.qos.logback:logback-classic:1.5.16")
+    implementation("org.apache.avro:avro:1.11.4")
+    implementation("org.testcontainers:pulsar:1.20.4")
 
     implementation("org.apache.pulsar:pulsar-client:$PULSAR_VERSION")
     implementation("org.apache.pulsar:pulsar-client-admin:$PULSAR_VERSION")
@@ -38,6 +37,7 @@ java {
 
 application {
     mainClass.set("dlq.issue.AppKt")
+    applicationDefaultJvmArgs = listOf("-DPULSAR_VERSION=$PULSAR_VERSION")
 }
 
 tasks.named<Test>("test") {

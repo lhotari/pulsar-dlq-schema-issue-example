@@ -16,38 +16,41 @@ val DLQ_TOPIC = "dlq-topic"
 val RETRY_TOPIC = "retry-topic"
 
 fun main() {
-  PulsarContainer(DockerImageName.parse("apachepulsar/pulsar:3.3.7")).use { pulsar ->
-    pulsar.start()
+  PulsarContainer(
+          DockerImageName.parse(
+              "apachepulsar/pulsar:${System.getProperty("PULSAR_VERSION")?:"4.0.1"}"))
+      .use { pulsar ->
+        pulsar.start()
 
-    val admin = PulsarAdmin.builder().serviceHttpUrl(pulsar.httpServiceUrl).build()
-    val client = PulsarClient.builder().serviceUrl(pulsar.pulsarBrokerUrl).build()
+        val admin = PulsarAdmin.builder().serviceHttpUrl(pulsar.httpServiceUrl).build()
+        val client = PulsarClient.builder().serviceUrl(pulsar.pulsarBrokerUrl).build()
 
-    client
-        .newConsumer(Schema.AVRO(SomeRecord::class.java))
-        .topic(TOPIC)
-        .subscriptionType(SubscriptionType.Shared)
-        .subscriptionName("test-subscription")
-        .enableRetry(false)
-        .deadLetterPolicy(
-            DeadLetterPolicy.builder()
-                .deadLetterTopic(DLQ_TOPIC)
-                .retryLetterTopic(RETRY_TOPIC)
-                .maxRedeliverCount(1)
-                .build())
-        .ackTimeoutTickTime(500, TimeUnit.MILLISECONDS)
-        .acknowledgmentGroupTime(10, TimeUnit.MILLISECONDS)
-        .negativeAckRedeliveryDelay(1, TimeUnit.SECONDS)
-        .messageListener { consumer, msg -> consumer.negativeAcknowledge(msg) }
-        .subscribe()
+        client
+            .newConsumer(Schema.AVRO(SomeRecord::class.java))
+            .topic(TOPIC)
+            .subscriptionType(SubscriptionType.Shared)
+            .subscriptionName("test-subscription")
+            .enableRetry(false)
+            .deadLetterPolicy(
+                DeadLetterPolicy.builder()
+                    .deadLetterTopic(DLQ_TOPIC)
+                    .retryLetterTopic(RETRY_TOPIC)
+                    .maxRedeliverCount(1)
+                    .build())
+            .ackTimeoutTickTime(500, TimeUnit.MILLISECONDS)
+            .acknowledgmentGroupTime(10, TimeUnit.MILLISECONDS)
+            .negativeAckRedeliveryDelay(1, TimeUnit.SECONDS)
+            .messageListener { consumer, msg -> consumer.negativeAcknowledge(msg) }
+            .subscribe()
 
-    removeSchemaValidationPolicies(admin)
+        removeSchemaValidationPolicies(admin)
 
-    val producer =
-        client.newProducer(Schema.AVRO(IncompatibleRecord::class.java)).topic(TOPIC).create()
-    producer.send(IncompatibleRecord("test"))
+        val producer =
+            client.newProducer(Schema.AVRO(IncompatibleRecord::class.java)).topic(TOPIC).create()
+        producer.send(IncompatibleRecord("test"))
 
-    keepTestContainerAlive()
-  }
+        keepTestContainerAlive()
+      }
 }
 
 private fun removeSchemaValidationPolicies(admin: PulsarAdmin) {
