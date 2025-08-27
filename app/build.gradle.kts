@@ -73,3 +73,8 @@ configurations {
         }
     }
 }
+
+ktfmt {
+    // KotlinLang style - 4 space indentation - From kotlinlang.org/docs/coding-conventions.html
+    kotlinLangStyle()
+}
