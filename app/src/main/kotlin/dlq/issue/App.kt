@@ -18,7 +18,7 @@ val RETRY_TOPIC = "retry-topic"
 fun main() {
   PulsarContainer(
           DockerImageName.parse(
-              "apachepulsar/pulsar:${System.getProperty("PULSAR_VERSION")?:"4.0.1"}"))
+              System.getProperty("PULSAR_DOCKER_IMAGE", "apachepulsar/pulsar:latest")))
       .use { pulsar ->
         pulsar.start()
 

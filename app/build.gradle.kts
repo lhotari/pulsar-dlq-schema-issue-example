@@ -15,7 +15,9 @@ repositories {
     mavenCentral()
 }
 
-val PULSAR_VERSION = "4.0.1"
+val PULSAR_VERSION = "4.1.0-SNAPSHOT"
+//val PULSAR_DOCKER_IMAGE = "apachepulsar/pulsar:${PULSAR_VERSION}"
+val PULSAR_DOCKER_IMAGE = "apachepulsar/pulsar:latest"
 
 dependencies {
     implementation("ch.qos.logback:logback-core:1.5.16")
@@ -37,7 +39,7 @@ java {
 
 application {
     mainClass.set("dlq.issue.AppKt")
-    applicationDefaultJvmArgs = listOf("-DPULSAR_VERSION=$PULSAR_VERSION")
+    applicationDefaultJvmArgs = listOf("-DPULSAR_DOCKER_IMAGE=$PULSAR_DOCKER_IMAGE")
 }
 
 tasks.named<Test>("test") {
